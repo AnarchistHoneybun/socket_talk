@@ -1,0 +1,6 @@
+.idea
+*.exe
+*.out
+*.app
+cmake-build-debug/
+CMakeLists.txt
