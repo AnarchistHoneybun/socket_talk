@@ -61,8 +61,11 @@ int main() {
 
     // ask for username
     char username[10];
-    printf("Enter your username:\n");
+    printf("Enter your username: ");
     scanf("%s", username);
+
+    // send username to server
+    send(socketFD, username, strlen(username), 0);
 
 
 
@@ -76,21 +79,21 @@ int main() {
     startListeningAndPrintMessagesOnNewThread(socketFD);
 
 
-    char jointMessage[1024];
+    // char jointMessage[1024];
     while(1){
 
         ssize_t charCount = getline(&message, &len, stdin);
         // add null terminator
         message[charCount-1] = '\0';
         // add username to message
-        sprintf(jointMessage, "[%s] %s", username, message);
+        // sprintf(jointMessage, "[%s] %s", username, message);
 
         if (charCount > 1) {
             if (strcmp(message, "exit") == 0) {
-                send(socketFD, jointMessage, strlen(jointMessage), 0);
+                send(socketFD, message, strlen(message), 0);
                 break;
             } else {
-                send(socketFD, jointMessage, strlen(jointMessage), 0);
+                send(socketFD, message, strlen(message), 0);
             }
         }
         // free(message);

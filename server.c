@@ -35,6 +35,7 @@ struct AcceptedSocket {
     struct sockaddr_in address;
     int error;
     bool accepted;
+    char username[10];
 };
 
 struct AcceptedSocket * acceptIncomingConnection(int serverSocketFD);
@@ -78,6 +79,9 @@ struct AcceptedSocket * acceptIncomingConnection(int serverSocketFD) {
         acceptedSocket->error = clientSocketFD;
     }
 
+    int bytesReceived = recv(clientSocketFD, acceptedSocket->username, 10, 0);
+    acceptedSocket->username[bytesReceived] = '\0';
+
     return acceptedSocket;
 }
 
@@ -118,8 +122,16 @@ void messageTransferRoutine(int socketFD) {
             if (strcmp(buffer, "exit") == 0) {
                 break;
             } else {
-                printf("%s\n", buffer);
-                sendReceivedMessageToAllClients(buffer, socketFD);
+                // find username of current socketFD
+                for(int i=0; i<acceptedSocketCount; i++){
+                    if(acceptedSockets[i].acceptedSocketFD == socketFD){
+                        printf("[%s] %s\n", acceptedSockets[i].username, buffer);
+                        // append username to message
+                        char jointMessage[1024];
+                        sprintf(jointMessage, "[%s] %s", acceptedSockets[i].username, buffer);
+                        sendReceivedMessageToAllClients(jointMessage, socketFD);
+                    }
+                }
             }
         }
     }
