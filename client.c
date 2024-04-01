@@ -51,31 +51,54 @@ int main() {
         return 1;
     }
 
+//    // ask for username
+//    char* username = NULL;
+//    size_t usernameLen = 0;
+//    printf("Enter your username:\n");
+//    ssize_t usernameCount = getline(&username, &usernameLen, stdin);
+//    // add null terminator
+//    username[usernameCount-1] = '\0';
+
+    // ask for username
+    char username[10];
+    printf("Enter your username:\n");
+    scanf("%s", username);
+
 
 
     char *message = NULL;
     size_t len = 0;
 
+
+
     printf("Begin chatting. Type 'exit' to quit\n");
 
     startListeningAndPrintMessagesOnNewThread(socketFD);
 
+
+    char jointMessage[1024];
     while(1){
+
         ssize_t charCount = getline(&message, &len, stdin);
         // add null terminator
         message[charCount-1] = '\0';
+        // add username to message
+        sprintf(jointMessage, "[%s] %s", username, message);
+
         if (charCount > 1) {
             if (strcmp(message, "exit") == 0) {
-                send(socketFD, message, charCount, 0);
+                send(socketFD, jointMessage, strlen(jointMessage), 0);
                 break;
             } else {
-                send(socketFD, message, charCount, 0);
+                send(socketFD, jointMessage, strlen(jointMessage), 0);
             }
         }
+        // free(message);
     }
 
 
-    free(message);
+
+    // free(username);
     close(socketFD);
 
     return 0;
@@ -100,7 +123,7 @@ void messageTransferRoutine(int socketFD) {
             if (strcmp(buffer, "exit") == 0) {
                 break;
             } else {
-                printf("Client sent: %s\n", buffer);
+                printf("%s\n", buffer);
             }
         }
     }

@@ -111,13 +111,14 @@ void recieveAndPrintIncomingDataOnSeperateThread(struct AcceptedSocket *clientSo
 void messageTransferRoutine(int socketFD) {
     char buffer[1024];
     while(1){
+        memset(buffer, 0, 1024);
         int bytesReceived = recv(socketFD, buffer, 1024, 0);
 
         if (bytesReceived > 0){
             if (strcmp(buffer, "exit") == 0) {
                 break;
             } else {
-                printf("Client sent: %s\n", buffer);
+                printf("%s\n", buffer);
                 sendReceivedMessageToAllClients(buffer, socketFD);
             }
         }
